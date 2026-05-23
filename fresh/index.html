@@ -6,13 +6,13 @@
   <meta name="color-scheme" content="dark">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
-  <meta name="app-version" content="2026-05-23-mobile-fix-2">
+  <meta name="app-version" content="2026-05-23-deadlift-init-fix">
   <title>训练记录</title>
   <script>
     (function () {
-      if (location.protocol.indexOf('http') === 0 && !location.search.includes('v=ffc217f')) {
+      if (location.protocol.indexOf('http') === 0 && !location.search.includes('v=deadlift-init-fix')) {
         var next = new URL(location.href);
-        next.searchParams.set('v', 'ffc217f');
+        next.searchParams.set('v', 'deadlift-init-fix');
         location.replace(next.toString());
       }
     })();
@@ -747,6 +747,10 @@
           <div class="stat">
             <div class="value bench-text" id="countBench">0</div>
             <div class="label">卧推</div>
+          </div>
+          <div class="stat">
+            <div class="value deadlift-text" id="countDeadlift">0</div>
+            <div class="label">硬拉</div>
           </div>
         </div>
         <div class="records" id="recordsList"></div>
