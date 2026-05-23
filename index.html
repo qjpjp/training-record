@@ -418,6 +418,15 @@
     .bench-text { color: var(--bench); }
     .deadlift-text { color: var(--deadlift); }
 
+    .gender .choice {
+      width: 100%;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+      pointer-events: auto;
+      touch-action: manipulation;
+    }
+
     .canvas-wrap {
       position: relative;
       width: 100%;
@@ -753,8 +762,8 @@
           <div class="field">
             <label>性别</label>
             <div class="gender" id="genderTabs">
-              <button class="choice active" data-gender="m">男</button>
-              <button class="choice" data-gender="f">女</button>
+              <button class="choice active" data-gender="m" type="button">男</button>
+              <button class="choice" data-gender="f" type="button">女</button>
             </div>
           </div>
           <div class="field">
@@ -1008,6 +1017,7 @@
       $("#countTotal").textContent = records.length;
       $("#countSquat").textContent = records.filter((record) => record.exercise === "squat").length;
       $("#countBench").textContent = records.filter((record) => record.exercise === "bench").length;
+      $("#countDeadlift").textContent = records.filter((record) => record.exercise === "deadlift").length;
 
       const list = $("#recordsList");
       const empty = $("#recordsEmpty");
@@ -1257,6 +1267,12 @@
           setActive("#genderTabs", "data-gender", gender);
           renderDots();
         });
+        button.addEventListener("touchend", (event) => {
+          event.preventDefault();
+          gender = button.dataset.gender;
+          setActive("#genderTabs", "data-gender", gender);
+          renderDots();
+        }, { passive: false });
       });
       ["bodyweight", "dotsSquat", "dotsBench", "dotsDeadlift"].forEach((id) => {
         $(`#${id}`).addEventListener("input", renderDots);
