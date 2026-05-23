@@ -44,6 +44,8 @@
 
     button {
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .app {
@@ -210,6 +212,7 @@
 
     .date-picker {
       position: relative;
+      z-index: 2;
     }
 
     .date-display {
@@ -226,6 +229,7 @@
       padding: 10px 12px;
       font-weight: 900;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+      touch-action: manipulation;
     }
 
     .date-display:focus-visible,
@@ -266,6 +270,8 @@
       border-radius: var(--radius);
       background: rgba(8, 11, 15, .72);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+      position: relative;
+      z-index: 3;
     }
 
     .calendar.open {
@@ -815,6 +821,14 @@
       return `${date.getFullYear()}\u5e74${date.getMonth() + 1}\u6708${date.getDate()}\u65e5 ${week}`;
     }
 
+    function pad2(value) {
+      return value < 10 ? `0${value}` : String(value);
+    }
+
+    function toISODate(date) {
+      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    }
+
     let calendarView = parseISODate(todayISO());
 
     function setTrainDate(value) {
@@ -862,14 +876,15 @@
         } else {
           date = new Date(year, month, i - firstDay + 1);
         }
-        const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const iso = toISODate(date);
         cell.textContent = date.getDate();
         if (iso === today) cell.classList.add("today");
         if (iso === selected) cell.classList.add("selected");
-        cell.addEventListener("click", () => {
+        const selectDay = () => {
           setTrainDate(iso);
           toggleCalendar(false);
-        });
+        };
+        cell.addEventListener("click", selectDay);
         grid.appendChild(cell);
       }
     }
@@ -1044,7 +1059,10 @@
       ctx.clearRect(0, 0, width, height);
 
       const series = ["squat", "bench", "deadlift"].map((exercise) => ({ exercise, points: chartPoints(exercise) }));
-      const points = series.flatMap((item) => item.points);
+      const points = [];
+      series.forEach((item) => {
+        item.points.forEach((point) => points.push(point));
+      });
       const pad = { left: 48, right: 16, top: 20, bottom: 38 };
 
       ctx.fillStyle = "#111821";
@@ -1193,7 +1211,11 @@
 
     function bindEvents() {
       setTrainDate(todayISO());
-      $("#dateToggle").addEventListener("click", () => toggleCalendar());
+      $("#dateToggle").addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleCalendar();
+      });
       $("#prevMonth").addEventListener("click", () => { calendarView.setMonth(calendarView.getMonth() - 1); renderCalendar(); });
       $("#nextMonth").addEventListener("click", () => { calendarView.setMonth(calendarView.getMonth() + 1); renderCalendar(); });
       document.addEventListener("click", (event) => {
