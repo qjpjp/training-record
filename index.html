@@ -1184,10 +1184,17 @@
             showToast("无效备份文件");
             return;
           }
-          records = imported.sort((a, b) => new Date(a.date) - new Date(b.date));
+          const merged = [...records, ...imported];
+          const seen = new Set();
+          records = merged.filter((record) => {
+            const key = `${record.date}|${record.exercise}|${record.weight}|${record.reps}|${record.sets}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          }).sort((a, b) => new Date(a.date) - new Date(b.date) || Number(a.id || 0) - Number(b.id || 0));
           saveRecords();
           renderAll();
-          showToast(`已导入 ${records.length} 条记录`);
+          showToast(`已合并导入 ${imported.length} 条记录`);
         } catch {
           showToast("解析失败");
         }
