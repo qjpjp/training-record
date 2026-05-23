@@ -391,7 +391,7 @@
     .best-grid,
     .history-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -425,6 +425,7 @@
       z-index: 1;
       pointer-events: auto;
       touch-action: manipulation;
+      border-radius: 999px;
     }
 
     .canvas-wrap {
@@ -598,6 +599,10 @@
       .tabs { gap: 5px; }
       .tab { font-size: 14px; }
       .canvas-wrap { height: 260px; }
+      .best-grid,
+      .history-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
