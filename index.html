@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -625,7 +625,27 @@
         </div>
         <div class="field">
           <label for="trainDate">训练日期</label>
-          <input id="trainDate" type="date">
+          <div class="date-picker" id="datePicker">
+            <button class="date-display" id="dateToggle" type="button" aria-expanded="false" aria-controls="calendarPanel">
+              <span>
+                <strong id="dateText">-</strong>
+                <small id="dateSubtext">-</small>
+              </span>
+              <span class="date-arrow" aria-hidden="true">⌄</span>
+            </button>
+            <input id="trainDate" type="hidden">
+            <div class="calendar" id="calendarPanel">
+              <div class="calendar-head">
+                <button class="cal-nav" id="prevMonth" type="button" aria-label="上一月">‹</button>
+                <div class="calendar-title" id="calendarTitle"></div>
+                <button class="cal-nav" id="nextMonth" type="button" aria-label="下一月">›</button>
+              </div>
+              <div class="calendar-week" aria-hidden="true">
+                <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+              </div>
+              <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="日历"></div>
+            </div>
+          </div>
         </div>
         <div class="form-grid">
           <div class="field">
@@ -658,6 +678,10 @@
           <div class="stat">
             <div class="value deadlift-text" id="bestDeadlift">-</div>
             <div class="label">硬拉</div>
+          </div>
+          <div class="stat">
+            <div class="value" id="bestTotal">-</div>
+            <div class="label">总和</div>
           </div>
         </div>
       </div>
@@ -812,7 +836,6 @@
 
     function renderCalendar() {
       const selected = $("#trainDate").value;
-      const selectedDate = selected ? parseISODate(selected) : parseISODate(todayISO());
       const today = todayISO();
       const year = calendarView.getFullYear();
       const month = calendarView.getMonth();
@@ -949,14 +972,16 @@
     function renderSummary() {
       const best = bestLifts();
       const latest = records.length ? records[records.length - 1].date.slice(5) : "-";
+      const total = best.squat + best.bench + best.deadlift;
       $("#summaryTotal").textContent = records.length;
       $("#summaryLatest").textContent = latest;
       $("#summaryBest").textContent = (best.squat || best.bench || best.deadlift)
-        ? `深蹲 ${formatKg(best.squat)} / 卧推 ${formatKg(best.bench)} / 硬拉 ${formatKg(best.deadlift)}`
+        ? `深蹲 ${formatKg(best.squat)} / 卧推 ${formatKg(best.bench)} / 硬拉 ${formatKg(best.deadlift)} / 总和 ${formatKg(total)}`
         : "-";
       $("#bestSquat").textContent = formatKg(best.squat);
       $("#bestBench").textContent = formatKg(best.bench);
       $("#bestDeadlift").textContent = formatKg(best.deadlift);
+      $("#bestTotal").textContent = total > 0 ? `${total.toFixed(1)} kg` : "-";
     }
 
     function renderHistory() {
