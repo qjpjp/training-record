@@ -208,6 +208,135 @@
       font-weight: 800;
     }
 
+    .date-picker {
+      position: relative;
+    }
+
+    .date-display {
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(8, 11, 15, .78), rgba(23, 34, 49, .72));
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 900;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .date-display:focus-visible,
+    .date-display.active {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 122, 61, .16);
+    }
+
+    .date-display small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .date-arrow {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: rgba(255, 122, 61, .13);
+      color: var(--accent);
+      transition: transform .2s ease;
+    }
+
+    .date-display.active .date-arrow {
+      transform: rotate(180deg);
+    }
+
+    .calendar {
+      display: none;
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: var(--radius);
+      background: rgba(8, 11, 15, .72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .calendar.open {
+      display: block;
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .calendar-title {
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .cal-nav {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(23, 34, 49, .72);
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .calendar-week,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .calendar-week {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      min-width: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: rgba(17, 24, 33, .62);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .day.other {
+      color: rgba(150, 164, 184, .38);
+      background: transparent;
+    }
+
+    .day.today {
+      border-color: rgba(51, 214, 198, .55);
+      color: var(--bench);
+    }
+
+    .day.selected {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), #ff9e62);
+      color: #160804;
+    }
+
     input {
       width: 100%;
       min-height: 44px;
@@ -651,6 +780,77 @@
       return new Date(d.getTime() - offset).toISOString().slice(0, 10);
     }
 
+    function parseISODate(value) {
+      const [year, month, day] = value.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function formatDisplayDate(value) {
+      const date = parseISODate(value);
+      const week = ["\u5468\u65e5", "\u5468\u4e00", "\u5468\u4e8c", "\u5468\u4e09", "\u5468\u56db", "\u5468\u4e94", "\u5468\u516d"][date.getDay()];
+      return `${date.getFullYear()}\u5e74${date.getMonth() + 1}\u6708${date.getDate()}\u65e5 ${week}`;
+    }
+
+    let calendarView = parseISODate(todayISO());
+
+    function setTrainDate(value) {
+      $("#trainDate").value = value;
+      $("#dateText").textContent = formatDisplayDate(value);
+      $("#dateSubtext").textContent = value;
+      calendarView = parseISODate(value);
+      renderCalendar();
+    }
+
+    function toggleCalendar(force) {
+      const panel = $("#calendarPanel");
+      const button = $("#dateToggle");
+      const shouldOpen = typeof force === "boolean" ? force : !panel.classList.contains("open");
+      panel.classList.toggle("open", shouldOpen);
+      button.classList.toggle("active", shouldOpen);
+      button.setAttribute("aria-expanded", String(shouldOpen));
+    }
+
+    function renderCalendar() {
+      const selected = $("#trainDate").value;
+      const selectedDate = selected ? parseISODate(selected) : parseISODate(todayISO());
+      const today = todayISO();
+      const year = calendarView.getFullYear();
+      const month = calendarView.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      $("#calendarTitle").textContent = `${year}\u5e74 ${month + 1}\u6708`;
+      const grid = $("#calendarGrid");
+      grid.innerHTML = "";
+      const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "day";
+        let date;
+        if (i < firstDay) {
+          const day = prevMonthDays - firstDay + i + 1;
+          date = new Date(year, month - 1, day);
+          cell.classList.add("other");
+        } else if (i >= firstDay + daysInMonth) {
+          const day = i - firstDay - daysInMonth + 1;
+          date = new Date(year, month + 1, day);
+          cell.classList.add("other");
+        } else {
+          date = new Date(year, month, i - firstDay + 1);
+        }
+        const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        cell.textContent = date.getDate();
+        if (iso === today) cell.classList.add("today");
+        if (iso === selected) cell.classList.add("selected");
+        cell.addEventListener("click", () => {
+          setTrainDate(iso);
+          toggleCalendar(false);
+        });
+        grid.appendChild(cell);
+      }
+    }
+
     function loadRecords() {
       try {
         const parsed = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
@@ -967,7 +1167,13 @@
     }
 
     function bindEvents() {
-      $("#trainDate").value = todayISO();
+      setTrainDate(todayISO());
+      $("#dateToggle").addEventListener("click", () => toggleCalendar());
+      $("#prevMonth").addEventListener("click", () => { calendarView.setMonth(calendarView.getMonth() - 1); renderCalendar(); });
+      $("#nextMonth").addEventListener("click", () => { calendarView.setMonth(calendarView.getMonth() + 1); renderCalendar(); });
+      document.addEventListener("click", (event) => {
+        if (!$("#datePicker").contains(event.target)) toggleCalendar(false);
+      });
       $("#addRecord").addEventListener("click", addRecord);
       $$(".tab").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
       $$("#exerciseTabs [data-exercise]").forEach((button) => {
