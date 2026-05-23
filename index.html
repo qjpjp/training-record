@@ -4,8 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
   <meta name="app-version" content="2026-05-23-mobile-fix-2">
   <title>训练记录</title>
+  <script>
+    (function () {
+      if (location.protocol.indexOf('http') === 0 && !location.search.includes('v=ffc217f')) {
+        var next = new URL(location.href);
+        next.searchParams.set('v', 'ffc217f');
+        location.replace(next.toString());
+      }
+    })();
+  </script>
   <style>
     :root {
       --bg: #080b0f;
