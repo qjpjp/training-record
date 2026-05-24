@@ -1029,6 +1029,41 @@
       $("#bestTotal").textContent = total > 0 ? `${total.toFixed(1)} kg` : "-";
     }
 
+    function createRecordElement(record) {
+      const e1rm = estimate1RM(Number(record.weight), Number(record.reps));
+      const item = document.createElement("div");
+      item.className = "record";
+
+      const date = document.createElement("div");
+      date.className = "record-date";
+      date.textContent = record.date.slice(5);
+
+      const badge = document.createElement("div");
+      badge.className = `badge ${record.exercise}`;
+      badge.textContent = names[record.exercise];
+
+      const main = document.createElement("div");
+      main.className = "record-main";
+
+      const weight = document.createElement("strong");
+      weight.textContent = `${record.weight} kg`;
+
+      const details = document.createElement("span");
+      details.textContent = `${record.sets} 组 × ${record.reps} 次 · 估算 1RM ${e1rm} kg`;
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "delete";
+      deleteButton.type = "button";
+      deleteButton.dataset.delete = String(record.id);
+      deleteButton.setAttribute("aria-label", "删除");
+      deleteButton.textContent = "×";
+      deleteButton.addEventListener("click", () => deleteRecord(Number(record.id)));
+
+      main.append(weight, details);
+      item.append(date, badge, main, deleteButton);
+      return item;
+    }
+
     function renderHistory() {
       const filtered = records
         .filter((record) => historyFilter === "all" || record.exercise === historyFilter)
@@ -1041,29 +1076,15 @@
 
       const list = $("#recordsList");
       const empty = $("#recordsEmpty");
+      list.replaceChildren();
       if (!filtered.length) {
-        list.innerHTML = "";
         empty.style.display = "block";
         return;
       }
 
       empty.style.display = "none";
-      list.innerHTML = filtered.map((record) => {
-        const e1rm = estimate1RM(Number(record.weight), Number(record.reps));
-        return `
-          <div class="record">
-            <div class="record-date">${record.date.slice(5)}</div>
-            <div class="badge ${record.exercise}">${names[record.exercise]}</div>
-            <div class="record-main">
-              <strong>${record.weight} kg</strong>
-              <span>${record.sets} 组 × ${record.reps} 次 · 估算 1RM ${e1rm} kg</span>
-            </div>
-            <button class="delete" data-delete="${record.id}" aria-label="删除">×</button>
-          </div>
-        `;
-      }).join("");
-      $$("[data-delete]").forEach((button) => {
-        button.addEventListener("click", () => deleteRecord(Number(button.dataset.delete)));
+      filtered.forEach((record) => {
+        list.appendChild(createRecordElement(record));
       });
     }
 
