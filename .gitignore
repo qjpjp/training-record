@@ -2,3 +2,8 @@ cloudflared*.log
 serve_single.py
 *.tmp
 *.bak
+.gradle/
+build/
+app/build/
+local.properties
+*.apk

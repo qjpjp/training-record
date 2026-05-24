@@ -29,3 +29,19 @@
 ## 本地打开
 
 直接用浏览器打开 `index.html` 即可使用，不需要安装依赖或启动服务。
+
+## Android APK
+
+仓库包含一个最小 Android WebView 包装项目，会把 `index.html` 打进 APK。App 内数据仍保存在当前手机的 WebView 本地存储中。
+
+生成 APK：
+
+1. 打开 GitHub 仓库的 Actions 页面
+2. 运行 `Build Android APK`
+3. 在本次运行的 Artifacts 中下载 `training-record-debug-apk`
+
+本地构建需要 Android SDK 和 Gradle：
+
+```bash
+gradle :app:assembleDebug
+```

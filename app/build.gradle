@@ -1,0 +1,29 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "io.github.qjpjp.trainingrecord"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "io.github.qjpjp.trainingrecord"
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    sourceSets {
+        main {
+            assets.srcDir("$buildDir/generated/assets/main")
+        }
+    }
+}
+
+tasks.register("copyWebAssets", Copy) {
+    from("$rootDir/index.html")
+    into("$buildDir/generated/assets/main")
+}
+
+preBuild.dependsOn("copyWebAssets")
