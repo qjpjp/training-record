@@ -8,6 +8,7 @@ const failures = [];
 
 const html = read('index.html');
 const readme = read('README.md');
+const androidActivity = read('app/src/main/java/io/github/qjpjp/trainingrecord/MainActivity.java');
 
 function expect(condition, message) {
   if (!condition) failures.push(message);
@@ -24,6 +25,9 @@ expect(
   html.includes('details.textContent = `${record.sets} 组 × ${record.reps} 次 · 估算 1RM ${e1rm} kg`;'),
   'Record details should be assigned through textContent.'
 );
+expect(html.includes('window.AndroidBridge.exportBackup'), 'Export should use the Android bridge inside the APK.');
+expect(androidActivity.includes('addJavascriptInterface'), 'Android WebView should expose a JavaScript bridge.');
+expect(androidActivity.includes('onShowFileChooser'), 'Android WebView should support file input for backup import.');
 
 if (failures.length) {
   console.error('Smoke checks failed:');

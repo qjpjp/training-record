@@ -1216,10 +1216,17 @@
     }
 
     function exportData() {
-      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
+      const fileName = `powerlifting-backup-${todayISO()}.json`;
+      const json = JSON.stringify(records, null, 2);
+      if (window.AndroidBridge && typeof window.AndroidBridge.exportBackup === "function") {
+        window.AndroidBridge.exportBackup(fileName, json);
+        return;
+      }
+
+      const blob = new Blob([json], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `powerlifting-backup-${todayISO()}.json`;
+      link.download = fileName;
       link.click();
       URL.revokeObjectURL(link.href);
       showToast("已导出");
